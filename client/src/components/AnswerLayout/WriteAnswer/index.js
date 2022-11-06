@@ -1,5 +1,5 @@
 import Prism from 'prismjs';
-import { useEffect, useRef } from 'react';
+import { useRef } from 'react';
 // 여기 css를 수정해서 코드 하이라이팅 커스텀 가능
 import 'prismjs/themes/prism.css';
 
@@ -9,28 +9,20 @@ import { Editor } from '@toast-ui/react-editor';
 import codeSyntaxHighlight from '@toast-ui/editor-plugin-code-syntax-highlight';
 import '@toast-ui/editor-plugin-code-syntax-highlight/dist/toastui-editor-plugin-code-syntax-highlight.css';
 import axios from 'axios';
-import { useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
+import { isLogin } from '../../../util/isLogin';
 import PostAnswerButton from '../../Buttons/PostAnswerButton';
-import { ButtonContainer, Container, Header } from './style';
+import { ButtonContainer, Container, Header, NeedLogin } from './style';
 // import colorSyntax from '@toast-ui/editor-plugin-color-syntax';
 // import '@toast-ui/editor-plugin-color-syntax/dist/toastui-editor-plugin-color-syntax.css';
 // import 'tui-color-picker/dist/tui-color-picker.css';
 
 function WriteAnswer() {
-  // const navigate = useNavigate();
   const { id } = useParams();
   let editorRef = useRef();
-  useEffect(() => {
-    if (editorRef && editorRef.current.blur) editorRef.current.blur();
-  }, []);
-
-  const handleFocus = () => {
-    // change color
-  };
 
   const handlePostAnswer = () => {
     const markdownValue = editorRef.current.getInstance().getMarkdown();
-    console.log(markdownValue);
     axios
       .post(
         `/api/questions/${id}/answers`,
@@ -46,7 +38,6 @@ function WriteAnswer() {
       .then((res) => {
         console.log(res);
         if (res.status >= 200 && res.status < 300) {
-          // navigate(`/questions/${id}`);
           location.reload();
         }
       })
@@ -73,8 +64,17 @@ function WriteAnswer() {
           ['code'],
           ['scrollSync'],
         ]}
-        onFocus={handleFocus}
+        autofocus={false}
       ></Editor>
+      {isLogin() || (
+        <NeedLogin>
+          <h3>
+            <Link to={'/signup'}>{'Sign up'}</Link>
+            {` or `}
+            <Link to={'/login'}>{'log in'}</Link>
+          </h3>
+        </NeedLogin>
+      )}
       <ButtonContainer>
         <PostAnswerButton handlePostAnswer={handlePostAnswer} />
       </ButtonContainer>

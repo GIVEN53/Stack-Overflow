@@ -5,17 +5,21 @@ import GlobalStyle from './assets/GlobalStyle';
 import Footer from './components/Layout/Footer';
 import GlobalNav from './components/Layout/GlobalNav';
 import SideNav from './components/Layout/SideNav';
-import AskQuestion from './pages/AskQuestion/index';
+import AskQuestion from './pages/AskQuestion';
 import Home from './pages/Home'; // 잠시 주석처리
 import Edit from './pages/Questions/Edit';
 import QuestionContent from './pages/Questions/QuestionContent';
 import Logout from './pages/Register/Logout';
 import SearchResults from './pages/SearchResults';
 
+import { useEffect, useState } from 'react';
 import AllQuestions from './pages/AllQuestions';
+import QuestionsTagged from './pages/QuestionsTagged';
 import Login from './pages/Register/Login';
 import Signup from './pages/Register/Signup';
-import QuestionsTagged from './pages/QuestionsTagged';
+import SearchTip from './pages/SearchResults/AdvancedSearchTips/SearchTip';
+import TagsTab from './pages/TagsTab';
+import Users from './pages/Users';
 
 function App() {
   const { pathname } = useLocation();
@@ -35,17 +39,38 @@ function App() {
     bgColor = `white`;
   }
 
+  // hamburger
+  const [hamburger, setHamburger] = useState(false);
+  const openHamburger = () => {
+    setHamburger(!hamburger);
+    console.log('HAMHAM!');
+  };
+
   const noSnb = ['/ask', '/login', '/logout', '/signup'];
   const noFooter = ['/login', '/logout', '/signup'];
 
   const hideSnb = noSnb.includes(pathname);
   const hideFooter = noFooter.includes(pathname);
+  useEffect(() => {
+    window.onbeforeunload = function pushRefresh() {
+      window.scrollTo(0, 0);
+    };
+  }, []);
   return (
     <Root color={bgColor}>
       <GlobalStyle />
-      <GlobalNav />
+      <GlobalNav hamburger={hamburger} openHamburger={openHamburger} />
+      {hamburger && (
+        <SNBModal>
+          <SideNav />
+        </SNBModal>
+      )}
       <Body>
-        {hideSnb || <SideNav />}
+        {hideSnb || (
+          <SNBContainer>
+            <SideNav />
+          </SNBContainer>
+        )}
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/signup" element={<Signup />} />
@@ -62,9 +87,10 @@ function App() {
           <Route path={`/questions/edit/:id/:answerid`} element={<Edit />} />
           {/* querystring으로 검색 결과 페이지 이동 (/search?q=springboot) */}
           <Route path="/search" element={<SearchResults />} />
+          <Route path="/searchtip" element={<SearchTip />} />
           <Route path="/searchtag" element={<QuestionsTagged />} />
-          <Route path="/tags" element={<div>tags</div>} />
-          <Route path="/users" element={<div>users</div>} />
+          <Route path="/users" element={<Users />} />
+          <Route path="/tags" element={<TagsTab />} />
           {/* id가 본인이면 마이페이지 */}
           <Route path={`/users/:id`} element={<div>users/:id</div>} />
         </Routes>
@@ -79,8 +105,33 @@ const Root = styled.section`
 
 const Body = styled.div`
   display: flex;
-  margin: 0 124px;
+  margin: 0 auto;
+  max-width: 1264px;
+  width: 100%;
   padding-top: 50px;
+  min-height: calc(100vh - 332px);
 `;
+
+const SNBContainer = styled.div`
+  @media screen and (max-width: 640px) {
+    display: none;
+  }
+`;
+
+const SNBModal = styled.div`
+  @media screen and (min-width: 640px) {
+    display: none;
+  }
+  margin-top: 52px;
+  position: fixed;
+  background-color: white;
+  z-index: 1;
+  border-bottom: 1px solid var(--black-100);
+`;
+
+// const Main = styled.div`
+//   display: flex;
+//   justify-content: space-between;
+// `;
 
 export default App;

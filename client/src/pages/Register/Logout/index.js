@@ -21,7 +21,12 @@ export default function Logout() {
     //로컬스토리지에 담았던 키(스트링형식)를 제거
     dispatch(logoutAction());
     localStorage.removeItem('accesstoken');
-    localStorage.removeItem('id');
+    localStorage.removeItem('refreshToken');
+    localStorage.removeItem('googleAccessToken');
+    localStorage.removeItem('googleRefreshToken');
+    localStorage.removeItem('displayname');
+
+    console.log(localStorage);
     navigate('/');
   };
 

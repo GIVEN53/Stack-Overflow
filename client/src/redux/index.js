@@ -48,13 +48,6 @@ export const searchTagAction = (res) => {
 };
 
 // // 질문 작성 데이터 (Title)
-// export const askTitleAction = (res) => {
-//   return {
-//     type: 'TITLE',
-//     payload: res,
-//   };
-// };
-// 질문 작성 데이터 (Title)
 export const askTitleAction = (res) => {
   return {
     type: 'TITLE',
@@ -82,8 +75,8 @@ export const askTagsAction = (res) => {
 const initialstate = {
   isLogin: false,
   question: null,
-  searchGen: null,
-  searchTag: null,
+  searchGen: '',
+  searchTag: '',
   ask: {
     title: null,
     body: null,
@@ -142,6 +135,7 @@ const searchReducer = (state = initialstate, action) => {
       return state;
   }
 };
+
 const askReducer = (state = initialstate, action) => {
   switch (action.type) {
     case 'TITLE':

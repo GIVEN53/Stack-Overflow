@@ -3,54 +3,39 @@
 
 import styled from 'styled-components';
 import QuestionsList from '../../components/Main/QuestionsList';
-import { Link } from 'react-router-dom';
+
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useSelector } from 'react-redux';
-// import { DummyData } from '../../components/Main/Data/DummyData';
-// import Question from '../Question';
+import SideBarWidget from '../../components/SideBarWidget';
+import {
+  HomeHead,
+  TopQuestionsTitle,
+  Total,
+  Container,
+  Main,
+} from '../Home/style';
+import AskQuestionButton from '../../components/Buttons/AskQuestionButton';
+import NoSearch from '../NoSearch';
+import { Link } from 'react-router-dom';
 
-// 제목, 버튼, 링크 묶음
-const SearchResultsHead = styled.div`
-  display: flex;
-  justify-content: space-between;
-  margin: 0 0 0 20px;
-`;
+// const Container = styled.div`
+//   display: flex;
+//   padding: 24px 24px 0 0;
+// `;
 
-// 제목
-const SearchResultsTitle = styled.span`
-  font-size: 27px;
-  margin-top: 19.5px;
-`;
-
-// 질문작성 버튼
-const AskQuestionButton = styled(Link)`
-  text-align: center;
-  position: relative;
-  display: inline-block;
-  padding: 0.8em;
-  background-color: #0995ff;
-  font-size: 12.9px;
-  font-family: inherit;
-  font-weight: normal;
-  color: white;
-  width: 103px;
-  height: 37px;
-  border: 1px solid transparent;
-  border-radius: 3px;
-  box-shadow: inset 0 1px 0 0 hsl(0deg 0% 100% / 40%);
-  outline: none;
-  margin-top: 19.5px;
-  text-decoration-line: none;
-  cursor: pointer;
-`;
+// const Main = styled.div`
+//   display: flex;
+//   flex-direction: column;
+// `;
 
 // AskQuestion 버튼옆에 Tip링크
-const AdvancedTipButton = styled.a`
+const AdvancedTipButton = styled(Link)`
   color: #0074cc;
   font-size: 12.8px;
   width: 110px;
   margin-right: 20px;
+  text-decoration-line: none;
   cursor: pointer;
 `;
 
@@ -59,12 +44,6 @@ const AboutResult = styled.p`
   font-size: 12px;
   color: #6a737c;
   margin-bottom: 10px;
-`;
-
-// 질문 갯수
-const Total = styled.div`
-  margin: 20px 0 27px 23px;
-  font-size: 20px;
 `;
 
 const SearchResults = () => {
@@ -76,9 +55,6 @@ const SearchResults = () => {
     'SearchResults컴포 -> useSelector() -> searchGen 값 :',
     searchGen
   );
-  // const [params] = useSearchParams();
-  // const search = params;
-  // console.log('params : ', search);
 
   useEffect(() => {
     axios
@@ -91,36 +67,50 @@ const SearchResults = () => {
       })
       .then((res) => {
         console.log('SearchResults컴포->axios요청 값 : ', res.data);
-        setSearchResultsData(res.data.questions);
+        setSearchResultsData(res.data);
         setTotalCount(res.data.questions.length);
       })
       .catch((error) => console.log('error : ', error));
-  }, []);
+  }, [searchGen]);
+
+  console.log('SearchResults컴포 -> searchResultsData : ', searchResultsData);
 
   return (
-    <div>
-      <div>
-        <SearchResultsHead>
-          <SearchResultsTitle>Search Results</SearchResultsTitle>
+    searchResultsData && (
+      <Container>
+        <Main>
           <div>
-            <AdvancedTipButton>Advanced Search Tips</AdvancedTipButton>
-            <AskQuestionButton to={'/questions/ask'}>
-              Ask Question
-            </AskQuestionButton>
+            <HomeHead>
+              {searchResultsData && (
+                <TopQuestionsTitle>
+                  {searchResultsData.searchInfo.searchTitle}
+                </TopQuestionsTitle>
+              )}
+              <div>
+                <AdvancedTipButton to="/searchtip">
+                  Advanced Search Tips
+                </AdvancedTipButton>
+                <AskQuestionButton />
+              </div>
+            </HomeHead>
           </div>
-        </SearchResultsHead>
-      </div>
-      <div>
-        <Total>
-          <AboutResult>Results for javascript</AboutResult>
-          <span>{totalCount} results</span>
-        </Total>
-      </div>
-      <div>
-        {/* <QuestionsList dummy={DummyData}></QuestionsList> */}
-        <QuestionsList homeData={searchResultsData}></QuestionsList>
-      </div>
-    </div>
+          <div>
+            <Total>
+              <AboutResult>Results for {searchGen}</AboutResult>
+              <span>{totalCount} results</span>
+            </Total>
+          </div>
+          <div>
+            {searchResultsData.questions.length ? (
+              <QuestionsList homeData={searchResultsData}></QuestionsList>
+            ) : (
+              <NoSearch search={searchGen} />
+            )}
+          </div>
+        </Main>
+        <SideBarWidget />
+      </Container>
+    )
   );
 };
 

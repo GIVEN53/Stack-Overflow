@@ -24,6 +24,7 @@ public class UserJoinService {
 
     public void createUser(User user) {
         verifyExistUser(user.getEmail(), user.getDisplayName());
+
         String encryptedPassword = passwordEncoder.encode(user.getPassword());
         user.setPassword(encryptedPassword);
 

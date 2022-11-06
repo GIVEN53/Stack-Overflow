@@ -3,11 +3,9 @@ package padakmon.server.vote.service;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import padakmon.server.answer.entity.Answer;
-import padakmon.server.answer.repository.AnswerRepository;
 import padakmon.server.answer.service.AnswerService;
 import padakmon.server.authority.utils.LoggedInUserInfoUtils;
 import padakmon.server.question.entity.Question;
-import padakmon.server.question.repository.QuestionRepository;
 import padakmon.server.question.service.QuestionService;
 import padakmon.server.user.entity.User;
 import padakmon.server.vote.dto.VoteDto;
@@ -26,8 +24,6 @@ public class VoteService {
     private QuestionVoteRepository questionVoteRepository;
     private AnswerService answerService;
     private LoggedInUserInfoUtils userInfoUtils;
-    private QuestionRepository questionRepository;
-    private AnswerRepository answerRepository;
 
     public VoteDto.Response answerCountUp(long answerId) {
         //이 회원이 이 답변에 누른 vote 객체 추출. 없으면 새로 만듦
@@ -39,12 +35,16 @@ public class VoteService {
         } else if(answerVote.getVoteCount() <= -1) {
             answerVote.voteUp();
             answerScore(answerVote.getAnswer(), 1);
+            //유저 voteCount -1
+            answerVote.getUser().voteDown();
             answerVoteRepository.save(answerVote);
             return new VoteDto.Response("true", "Canceled voting down");
         //아무것도 누른 적 없는 경우, 좋아요 누름
         } else {
             answerVote.voteUp();
             answerScore(answerVote.getAnswer(), 1);
+            //유저 voteCount +1
+            answerVote.getUser().voteUp();
             answerVoteRepository.save(answerVote);
             return new VoteDto.Response("true", "Voted up successfully");
         }
@@ -57,6 +57,8 @@ public class VoteService {
         if(answerVote.getVoteCount() >= 1) {
             answerVote.voteDown();
             answerScore(answerVote.getAnswer(), -1);
+            //유저 voteCount -1
+            answerVote.getUser().voteDown();
             answerVoteRepository.save(answerVote);
             return new VoteDto.Response("true", "Canceled voting up");
         //이미 싫어요를 눌렀다면, 또 누르지 못함
@@ -66,6 +68,8 @@ public class VoteService {
         } else {
             answerVote.voteDown();
             answerScore(answerVote.getAnswer(), -1);
+            //유저 voteCount +1
+            answerVote.getUser().voteUp();
             answerVoteRepository.save(answerVote);
             return new VoteDto.Response("true", "Voted down successfully");
         }
@@ -98,12 +102,16 @@ public class VoteService {
         } else if(questionVote.getVoteCount() <= -1) {
             questionVote.voteUp();
             questionScore(questionVote.getQuestion(), 1);
+            //유저 voteCount -1
+            questionVote.getUser().voteDown();
             questionVoteRepository.save(questionVote);
             return new VoteDto.Response("true", "Canceled voting down");
             //아무것도 누른 적 없는 경우, 좋아요 누름
         } else {
             questionVote.voteUp();
             questionScore(questionVote.getQuestion(), 1);
+            //유저 voteCount +1
+            questionVote.getUser().voteUp();
             questionVoteRepository.save(questionVote);
             return new VoteDto.Response("true", "Voted up successfully");
         }
@@ -116,6 +124,8 @@ public class VoteService {
         if(questionVote.getVoteCount() >= 1) {
             questionVote.voteDown();
             questionScore(questionVote.getQuestion(), -1);
+            //유저 voteCount -1
+            questionVote.getUser().voteDown();
             questionVoteRepository.save(questionVote);
             return new VoteDto.Response("true", "Canceled voting up");
             //이미 싫어요를 눌렀다면, 또 누르지 못함
@@ -125,6 +135,8 @@ public class VoteService {
         } else {
             questionVote.voteDown();
             questionScore(questionVote.getQuestion(), -1);
+            //유저 voteCount +1
+            questionVote.getUser().voteUp();
             questionVoteRepository.save(questionVote);
             return new VoteDto.Response("true", "Voted down successfully");
         }
@@ -134,7 +146,7 @@ public class VoteService {
         //회원 추출
         User user = userInfoUtils.extractUser();
         //Question 객체 얻기
-        Question question = questionService.read(questionId);
+        Question question = questionService.readAndViewCount(questionId);
         //이 회원이 이 답변에 누른 vote 객체 추출. 없으면 새로 만듦
         Optional<QuestionVote> optionalQuestionVote = questionVoteRepository.findByQuestionAndUser(question, user);
         if(optionalQuestionVote.isPresent()) {

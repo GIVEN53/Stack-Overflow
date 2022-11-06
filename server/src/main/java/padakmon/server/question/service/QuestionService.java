@@ -8,6 +8,7 @@ import padakmon.server.authority.utils.LoggedInUserInfoUtils;
 import padakmon.server.exception.BusinessLogicException;
 import padakmon.server.exception.ExceptionCode;
 import padakmon.server.question.entity.Question;
+import padakmon.server.question.entity.QuestionView;
 import padakmon.server.question.repository.QuestionRepository;
 import padakmon.server.tag.entity.QuestionTag;
 import padakmon.server.tag.entity.Tag;
@@ -92,7 +93,7 @@ public class QuestionService {
         //접속한 사람이 작성한 글이 맞는지 확인
         long userId = userInfoUtils.extractUserId();
         Question question = verifyQuestion(questionId);
-        if(question.getUser().getId() != userId) {
+        if(question.getUser().getUserId() != userId) {
             throw new BusinessLogicException("Editing the question", ExceptionCode.NOT_A_WRITER, String.valueOf(userId));
         }
         return question;
@@ -119,8 +120,21 @@ public class QuestionService {
         return questionRepository.save(question);
     }
 
-    public Question read(long questionId) {
-        return verifyQuestion(questionId);
+    public Question readAndViewCount(long questionId) {
+        Question question = verifyQuestion(questionId);
+        Optional<User> optionalUser = userInfoUtils.extractOptionalUser();
+        if(optionalUser.isPresent()) {
+            QuestionView questionView = new QuestionView();
+            questionView.setQuestion(question);
+            questionView.setUser(optionalUser.get());
+            Set<QuestionView> questionViews = question.getQuestionViews();
+            if(!questionViews.contains(questionView)) {
+                question.viewUp();
+                question.addQuestionView(questionView);
+                return questionRepository.save(question);
+            }
+        }
+        return question;
     }
     private Question verifyQuestion(long questionId) {
         Optional<Question> optionalQuestion = questionRepository.findById(questionId);

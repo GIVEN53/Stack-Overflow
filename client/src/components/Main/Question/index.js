@@ -7,8 +7,10 @@ import styled from 'styled-components';
 // react font-awesome npm i 로 필요 툴 설치하고 import 해오기
 import { faUser } from '@fortawesome/free-regular-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import './index.css';
+import removeMarkdown from 'markdown-to-text';
 import { Link } from 'react-router-dom';
+import { getPrettyTime } from '../../../util/getPrettyTime';
+import './index.css';
 
 // ------------ Question.js  각 질문들 컴포넌트 -------
 
@@ -16,13 +18,14 @@ import { Link } from 'react-router-dom';
 const QuBox = styled.div`
   padding: 15px 0 10px 0;
   border-top: 1px solid #d6d9dc;
+  /* width: 700px; */
 `;
 
 // 질문 내부
 const QuList = styled.li`
   display: flex;
   margin-top: 10px;
-  height: 118px;
+  height: 105px;
 `;
 
 // 질문 -> 왼쪽섹션 -> 투표,조회수,답변수
@@ -56,7 +59,7 @@ const ViewsCount = styled.div`
 
 // 질문리스트 -> 오른쪽섹션 -> 질문제목,내용 & 하단엔 footer
 const RigthSection = styled.section`
-  width: 630px;
+  width: 100%;
   margin: 0 0 0 20px;
   font-size: 17px;
 `;
@@ -66,7 +69,15 @@ const TextSection = styled.section``;
 
 // 질문 제목 -> 링크달아서 클릭시 질문내용 상세페이지로 ~
 const QuestionTitle = styled(Link)`
+  text-decoration: none;
   color: #0063bf;
+  font-weight: 500;
+  word-break: break-all;
+  overflow: hidden; // 사용해 넘치는 값들의 영역을(보이는것을) 감춘다!
+  text-overflow: ellipsis; // 로 ... 을 만들기
+  display: -webkit-box; // 몇줄이상부터 ... 쓸건지 하기전에 얘 추가
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
   cursor: pointer;
 `;
 
@@ -74,6 +85,12 @@ const QuestionTitle = styled(Link)`
 const QuestionText = styled.p`
   font-size: 13px;
   margin-top: 5px;
+  word-break: break-all;
+  overflow: hidden; // 사용해 넘치는 값들의 영역을(보이는것을) 감춘다!
+  text-overflow: ellipsis; // 로 ... 을 만들기
+  display: -webkit-box; // 몇줄이상부터 ... 쓸건지 하기전에 얘 추가
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
 `;
 
 // 질문 -> 하단 -> 태그목록, 질문자의정보(이미지, 닉네임, 작성날짜)
@@ -86,7 +103,14 @@ const TagInfoFooter = styled.footer`
 
 // 오른쪽섹션 -> footer 내부 -> 태그박스
 const TagBox = styled.div`
+  width: 360px;
   height: 27px;
+  word-break: break-all;
+  overflow: hidden; // 사용해 넘치는 값들의 영역을(보이는것을) 감춘다!
+  text-overflow: ellipsis; // 로 ... 을 만들기
+  display: -webkit-box; // 몇줄이상부터 ... 쓸건지 하기전에 얘 추가
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
 `;
 // 오른쪽섹션->footer->태그박스-> 버튼태그
 const TagBtn = styled.button`
@@ -99,6 +123,7 @@ const TagBtn = styled.button`
   text-align: center;
   font-size: 12px;
   color: rgb(57, 115, 157);
+
   cursor: pointer;
 `;
 
@@ -127,7 +152,7 @@ const LastTime = styled.div`
 
 const Question = ({ list }) => {
   // console.log(list.title);
-  // console.log(list.tags);
+  console.log('Question컴포 -> props로 받아온 Data.body : ', list.body);
 
   return (
     <QuBox>
@@ -150,34 +175,25 @@ const Question = ({ list }) => {
             <QuestionTitle to={`/questions/${list.questionId}`}>
               {list.title}
             </QuestionTitle>
-            <QuestionText>{list.body}</QuestionText>
+            <QuestionText>{removeMarkdown(list.body)}</QuestionText>
           </TextSection>
           <TagInfoFooter>
             <TagBox>
               {list.tags.map((el) => {
                 return (
-                  <TagBtn key={el.id}>
+                  <TagBtn key={el.toString()}>
                     <span>{el}</span>
                   </TagBtn>
                 );
               })}
             </TagBox>
-            {/* <TagBox>
-              <TagBtn>
-                <span>javascript</span>
-              </TagBtn>
-              <TagBtn>
-                <span>react</span>
-              </TagBtn>
-              <TagBtn>
-                <span>java</span>
-              </TagBtn>
-            </TagBox> */}
             <InfoBox>
               <FontAwesomeIcon icon={faUser} className="fontImg-user" />
               <InfoName>{list.user.displayName}</InfoName>
               <LastTime>
-                <span>asked 10 secs ago</span>
+                <span>{`asked ${getPrettyTime(
+                  new Date(list.createdAt)
+                )}`}</span>
               </LastTime>
             </InfoBox>
           </TagInfoFooter>
