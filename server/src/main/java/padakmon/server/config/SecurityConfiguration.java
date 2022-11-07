@@ -1,7 +1,5 @@
 package padakmon.server.config;
 
-import lombok.AllArgsConstructor;
-
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -9,6 +7,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -31,8 +30,6 @@ import padakmon.server.authority.utils.UserAuthorityUtils;
 
 import java.util.List;
 
-import static org.springframework.security.config.Customizer.withDefaults;
-
 @Configuration
 @RequiredArgsConstructor
 public class SecurityConfiguration {
@@ -52,11 +49,11 @@ public class SecurityConfiguration {
                 .headers().frameOptions().sameOrigin()
                 .and()
                 .csrf().disable()
-                .cors(withDefaults())
+                .cors(Customizer.withDefaults())
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .formLogin().disable()
-                .httpBasic().disable() // http header로 인증하는 방식은 사용하지 않음
+                .httpBasic().disable()
                 .exceptionHandling()
                 .authenticationEntryPoint(new UserAuthenticationEntryPoint())
                 .accessDeniedHandler(new UserAccessDeniedHandler())
@@ -73,8 +70,6 @@ public class SecurityConfiguration {
                 .successHandler(oAuth2SuccessHandler)
                 .userInfoEndpoint().userService(customOAuth2UserService);
 
-
-
         return http.build();
     }
 
@@ -89,8 +84,9 @@ public class SecurityConfiguration {
         configuration.setAllowedOriginPatterns(List.of("*"));
 //        configuration.setAllowedOrigins(List.of(domain)); // TODO 배포시 S3로 변경
         configuration.setAllowedMethods(List.of("GET", "POST", "PATCH", "DELETE", "OPTIONS"));
-//        configuration.setAllowedHeaders(List.of("*", "Authorization"));
+        configuration.setAllowedHeaders(List.of("*", "Authorization"));
         configuration.setAllowCredentials(true);
+        configuration.setExposedHeaders(List.of("AccessToken", "RefreshToken", "Id", "DisplayName"));
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
@@ -120,5 +116,4 @@ public class SecurityConfiguration {
         authenticationProvider.setHideUserNotFoundExceptions(false);
         return authenticationProvider;
     }
-
 }

@@ -47,7 +47,6 @@ export const Header = styled.div`
   position: fixed;
   display: flex;
   justify-content: center;
-  /* height: 58px; */
   border-top: 3px solid #f48224;
   background-color: #f8f9f9;
   width: 100%;

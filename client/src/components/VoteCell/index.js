@@ -6,6 +6,7 @@ import { isLogin } from '../../util/isLogin';
 import VoteDownButton from '../Buttons/VoteDownButton';
 import VoteUpButton from '../Buttons/VoteUpButton';
 import { Container, VoteNum } from './style';
+const URL = process.env.REACT_APP_API_URL;
 
 function VoteCell({ questionId, score, answerId }) {
   const navigate = useNavigate();
@@ -13,14 +14,13 @@ function VoteCell({ questionId, score, answerId }) {
   let uri;
   useEffect(() => {
     if (answerId) {
-      uri = `/api/questions/${questionId}/answers/${answerId}/votes`;
+      uri = `${URL}/api/questions/${questionId}/answers/${answerId}/votes`;
     } else {
-      uri = `/api/questions/${questionId}/votes`;
+      uri = `${URL}/api/questions/${questionId}/votes`;
     }
   }, [nowScore]);
 
   const handleVote = (num) => {
-    // console.log("handleVote's uri:", uri);
     if (isLogin()) {
       axios
         .post(
@@ -35,14 +35,12 @@ function VoteCell({ questionId, score, answerId }) {
           }
         )
         .then((res) => {
-          console.log(res);
           if (res.data.success === 'true') {
             setNowScore(nowScore + num);
           }
         })
         .catch((error) => console.log(error));
     } else {
-      // alert('You need to log in.');
       if (window.confirm('You need to log in.')) {
         navigate('/login');
       }

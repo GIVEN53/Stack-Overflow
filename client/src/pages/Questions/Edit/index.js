@@ -20,14 +20,13 @@ import {
   Text,
   ToastDiv,
 } from './style';
+const URL = process.env.REACT_APP_API_URL;
 
 function Edit() {
   const navigate = useNavigate();
   const question = useSelector((state) => state.questionReducer.question);
   let { id, answerid } = useParams();
   let isAnswer = answerid === undefined ? false : true;
-  console.log('useParams - id in Edit', id);
-  console.log('useParams - answerid in Edit', answerid);
   const titleInputValue = useRef();
   const editorRef = useRef();
   let title, body;
@@ -41,20 +40,19 @@ function Edit() {
 
   const [titleValue, setTitleValue] = useState(title ? title : '');
   let newTags = useSelector((state) => state.askReducer.tags);
-  console.log('newTags in Edit:', newTags);
 
   function handleEdit() {
     let newBody = editorRef.current?.getInstance().getMarkdown();
     let uri, reqBody;
 
     if (answerid) {
-      uri = `/api/questions/${id}/answers/${answerid}`;
+      uri = `${URL}/api/questions/${id}/answers/${answerid}`;
       reqBody = {
         contents: newBody,
       };
     } else {
       let newTitle = titleInputValue.current.value;
-      uri = `/api/questions/${id}`;
+      uri = `${URL}/api/questions/${id}`;
       reqBody = {
         title: newTitle,
         body: newBody,
@@ -69,7 +67,6 @@ function Edit() {
         },
       })
       .then((res) => {
-        console.log(res);
         if (res.status >= 200 && res.status < 300) {
           navigate(`/questions/${id}`);
         }
@@ -103,11 +100,8 @@ function Edit() {
             height="400px"
             initialValue={body}
             initialEditType="markdown"
-            // hideModeSwitch={true}
             useCommandShortcut={true}
-            //   plugins={[colorSyntax, [codeSyntaxHighlight, { highlighter: Prism }]]}
             toolbarItems={[
-              // 툴바 옵션 설정
               ['heading', 'bold', 'italic'],
               ['hr', 'quote'],
               ['ul', 'ol', 'task'],
@@ -118,21 +112,14 @@ function Edit() {
             autofocus={false}
           ></Editor>
         </ToastDiv>
-        {/* <TagDiv> */}
         {!isAnswer && (
           <TagContainer>
             <div>
               <H2>Tags</H2>
             </div>
-            {/* <input
-            type="text"
-            placeholder="e.g (excel string regex)"
-            ref={tagInputValue}
-          /> */}
             <TagInput initialTags={question.tags} />
           </TagContainer>
         )}
-        {/* </TagDiv> */}
         <button onClick={handleEdit}>Submit Edits</button>
       </Main>
       <Side>

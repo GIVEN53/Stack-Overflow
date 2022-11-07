@@ -1,4 +1,3 @@
-// import AskQuestionButton from '../../../components/Buttons/AskQuestionButton';
 import axios from 'axios';
 import { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
@@ -8,8 +7,8 @@ import ContentLayout from '../../../components/ContentLayout';
 import QuestionHeader from '../../../components/QuestionHeader';
 import SideBarWidget from '../../../components/SideBarWidget';
 import { questionAction } from '../../../redux';
-// import useAxios from '../../../util/useAxios';
 import { Container, MainBar, QuestionBody, SideBar } from './style';
+const URL = process.env.REACT_APP_API_URL;
 
 function QuestionContent() {
   const dispatch = useDispatch();
@@ -18,15 +17,12 @@ function QuestionContent() {
   const [testdata, setTestdata] = useState(null);
   useEffect(() => {
     axios
-      .get(`/api/questions/${id}`, {
+      .get(`${URL}/api/questions/${id}`, {
         headers: {
           'Content-Type': 'application/json;charset=UTF-8',
-          'Access-Control-Allow-Origin': '*',
-          'ngrok-skip-browser-warning': '111',
         },
       })
       .then((res) => {
-        console.log('questions res', res);
         return res.data;
       })
       .then((data) => {

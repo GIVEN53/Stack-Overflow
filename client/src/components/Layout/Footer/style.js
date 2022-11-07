@@ -17,9 +17,6 @@ export const Container = styled.div`
 export const LogoContainer = styled.div`
   width: 64px;
   height: 258px;
-  /* margin-top: -12px;
-  margin-left: -4px;
-  margin-bottom: 32px; */
   margin: -12px 12px 32px -4px;
 `;
 
@@ -34,7 +31,7 @@ export const Categories = styled.div`
   height: 254px;
   width: 100%;
   @media screen and (max-width: 980px) {
-    flex-direction: column;
+    display: none;
   }
 `;
 

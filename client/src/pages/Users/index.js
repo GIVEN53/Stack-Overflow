@@ -3,21 +3,26 @@ import { useEffect, useState } from 'react';
 import { AiOutlineSearch } from 'react-icons/ai';
 import UserCard from '../../components/UserCard';
 import { Buttons, Container, FilterBlock, UserListBlock } from './style';
+const URL = process.env.REACT_APP_API_URL;
 
 const Users = () => {
   const [users, setUsers] = useState([]);
-  //셀렉트 버튼
   const name = ['Reputation', 'New users', 'Voters', 'Editors', 'Moderators'];
   const [btnActive, setBtnActive] = useState(4);
   const [order, setOrder] = useState('');
 
   useEffect(() => {
     axios
-      .get(`/api/users`, {
-        headers: {
-          'Content-Type': 'application/json;charset=UTF-8',
-        },
-      })
+      .get(
+        btnActive === 0 || btnActive === 2
+          ? `${URL}/api/users?order=${order}`
+          : `${URL}/api/users`,
+        {
+          headers: {
+            'Content-Type': 'application/json;charset=UTF-8',
+          },
+        }
+      )
       .then((res) => setUsers(res.data.users))
       .catch((error) => console.log(error));
   }, []);
@@ -25,11 +30,12 @@ const Users = () => {
   const handleClick = (e) => {
     setBtnActive(e.target.value);
     setOrder(name[e.target.value].toLowerCase());
+
     axios
       .get(
         btnActive === 0 || btnActive === 2
-          ? `/api/users?order=${order}`
-          : `/api/users`,
+          ? `${URL}/api/users?order=${order}`
+          : `${URL}/api/users`,
         {
           headers: {
             'Content-Type': 'application/json;charset=UTF-8',
@@ -38,7 +44,6 @@ const Users = () => {
       )
       .then((res) => {
         setUsers(res.data.users);
-        console.log(res);
       })
       .catch((error) => console.log(error));
   };
@@ -73,7 +78,6 @@ const Users = () => {
         {users.map((ele) => (
           <div key={ele.userId}>
             <UserCard
-              img={ele.img}
               displayName={ele.displayName}
               answerCount={ele.answerCount}
               userId={ele.userId}
