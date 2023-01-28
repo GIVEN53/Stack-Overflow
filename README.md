@@ -3,6 +3,8 @@ Stack Overflow Clone
 
 배포 링크 : <http://padakmon-client-bucket.s3-website.ap-northeast-2.amazonaws.com/>
 
+### 서버 비용 문제로 2023.01.28 이후로 비활성화되었습니다.
+
 데모 영상 : <https://www.youtube.com/watch?v=T6uEMcfgvec/>
 
 프로젝트 기간 : 2022.10.20 ~ 2022.11.07
